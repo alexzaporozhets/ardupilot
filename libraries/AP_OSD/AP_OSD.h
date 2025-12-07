@@ -351,7 +351,8 @@ private:
 
     struct {
         bool load_attempted;
-        const char *str;
+        char str[72];  // fixed buffer: 50 (STATUSTEXT) + 20 (prefix) + 2
+        bool has_value;
     } callsign_data;
 };
 #endif // OSD_ENABLED
@@ -686,6 +687,11 @@ public:
     // handle OSD parameter configuration
 #if HAL_GCS_ENABLED
     void handle_msg(const mavlink_message_t &msg, const class GCS_MAVLINK& link);
+#endif
+
+#if OSD_ENABLED
+    // set callsign string for OSD display
+    void set_callsign(const char* str);
 #endif
 
     // allow threads to lock against OSD update

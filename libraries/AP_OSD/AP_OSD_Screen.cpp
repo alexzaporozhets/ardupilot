@@ -2460,9 +2460,15 @@ void AP_OSD_Screen::draw_pluscode(uint8_t x, uint8_t y)
 
 /*
   support callsign display from a file called callsign.txt
+  or from dynamically set value via set_callsign()
  */
 void AP_OSD_Screen::draw_callsign(uint8_t x, uint8_t y)
 {
+    // if callsign was set dynamically, display it
+    if (callsign_data.has_value) {
+        backend->write(x, y, false, "%s", callsign_data.str);
+        return;
+    }
 #if AP_OSD_CALLSIGN_FROM_SD_ENABLED
     if (!callsign_data.load_attempted) {
         callsign_data.load_attempted = true;
@@ -2473,11 +2479,15 @@ void AP_OSD_Screen::draw_callsign(uint8_t x, uint8_t y)
             while (len > 0 && isspace(fd->data[len-1])) {
                 len--;
             }
-            callsign_data.str = strndup((const char *)fd->data, len);
+            // copy into fixed buffer
+            len = MIN(len, sizeof(callsign_data.str) - 1);
+            memcpy(callsign_data.str, fd->data, len);
+            callsign_data.str[len] = '\0';
+            callsign_data.has_value = true;
             delete fd;
         }
     }
-    if (callsign_data.str != nullptr) {
+    if (callsign_data.has_value) {
         backend->write(x, y, false, "%s", callsign_data.str);
     }
 #endif

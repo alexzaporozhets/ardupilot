@@ -642,6 +642,19 @@ bool AP_OSD::pre_arm_check(char *failure_msg, const uint8_t failure_msg_len) con
     return true;
 }
 
+// set callsign string for OSD display
+void AP_OSD::set_callsign(const char* str)
+{
+    if (str == nullptr) {
+        return;
+    }
+    for (uint8_t i = 0; i < AP_OSD_NUM_DISPLAY_SCREENS; i++) {
+        strncpy(screen[i].callsign_data.str, str, sizeof(screen[i].callsign_data.str) - 1);
+        screen[i].callsign_data.str[sizeof(screen[i].callsign_data.str) - 1] = '\0';
+        screen[i].callsign_data.has_value = true;
+    }
+}
+
 #endif // OSD_ENABLED
 
 // handle OSD parameter configuration

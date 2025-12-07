@@ -3682,14 +3682,10 @@ void GCS_MAVLINK::send_timesync()
 
 void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
 {
-#if HAL_LOGGING_ENABLED
-    AP_Logger *logger = AP_Logger::get_singleton();
-    if (logger == nullptr) {
-        return;
-    }
-
     mavlink_statustext_t packet;
     mavlink_msg_statustext_decode(&msg, &packet);
+
+    // Format the text with source prefix
     const uint8_t max_prefix_len = 20;
     const uint8_t text_len = MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1+max_prefix_len;
     char text[text_len] = { 'G','C','S',':'};
@@ -3706,7 +3702,25 @@ void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
 
     memcpy(&text[offset], packet.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
 
-    logger->Write_Message(text);
+    // Forward to OSD message panel via AP_Notify
+    AP_Notify *notify = AP_Notify::get_singleton();
+    if (notify) {
+        notify->send_text(text);
+    }
+
+#if OSD_ENABLED
+    // Set callsign OSD element
+    AP_OSD *osd = AP::osd();
+    if (osd != nullptr) {
+        osd->set_callsign(text);
+    }
+#endif
+
+#if HAL_LOGGING_ENABLED
+    AP_Logger *logger = AP_Logger::get_singleton();
+    if (logger != nullptr) {
+        logger->Write_Message(text);
+    }
 #endif
 }
 
