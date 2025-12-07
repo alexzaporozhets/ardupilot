@@ -3685,22 +3685,10 @@ void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
     mavlink_statustext_t packet;
     mavlink_msg_statustext_decode(&msg, &packet);
 
-    // Format the text with source prefix
-    const uint8_t max_prefix_len = 20;
-    const uint8_t text_len = MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN+1+max_prefix_len;
-    char text[text_len] = { 'G','C','S',':'};
-    uint8_t offset = strlen(text);
-
-    if (msg.sysid != sysid_my_gcs()) {
-        offset = hal.util->snprintf(text,
-                                    max_prefix_len,
-                                    "SRC=%u/%u:",
-                                    msg.sysid,
-                                    msg.compid);
-        offset = MIN(offset, max_prefix_len);
-    }
-
-    memcpy(&text[offset], packet.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
+    // Ensure null termination
+    char text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN + 1];
+    memcpy(text, packet.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
+    text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN] = '\0';
 
     // Forward to OSD message panel via AP_Notify
     AP_Notify *notify = AP_Notify::get_singleton();
