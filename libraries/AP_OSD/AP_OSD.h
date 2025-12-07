@@ -156,6 +156,7 @@ public:
     }
 #endif
 private:
+    friend class AP_OSD;
     friend class AP_MSP;
     friend class AP_MSP_Telem_Backend;
     friend class AP_MSP_Telem_DJI;
@@ -164,6 +165,7 @@ private:
     static const uint8_t message_scroll_time_ms = 200;
     static const uint8_t message_scroll_delay = 5;
 
+    
     static constexpr float ah_max_pitch = DEG_TO_RAD * 20;
     //typical fpv camera has 80deg vertical field of view, 16 row of chars
     static constexpr float ah_pitch_rad_to_char = 16.0f/(DEG_TO_RAD * 80);
