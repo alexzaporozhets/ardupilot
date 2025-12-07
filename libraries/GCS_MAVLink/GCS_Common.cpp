@@ -3690,14 +3690,8 @@ void GCS_MAVLINK::handle_statustext(const mavlink_message_t &msg) const
     memcpy(text, packet.text, MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN);
     text[MAVLINK_MSG_STATUSTEXT_FIELD_TEXT_LEN] = '\0';
 
-    // Forward to OSD message panel via AP_Notify
-    AP_Notify *notify = AP_Notify::get_singleton();
-    if (notify) {
-        notify->send_text(text);
-    }
-
 #if OSD_ENABLED
-    // Set callsign OSD element
+    // Set callsign OSD element from forwarded STATUSTEXT
     AP_OSD *osd = AP::osd();
     if (osd != nullptr) {
         osd->set_callsign(text);
