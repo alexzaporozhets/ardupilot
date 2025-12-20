@@ -2493,7 +2493,7 @@ void AP_OSD_Screen::draw_callsign(uint8_t x, uint8_t y)
     }
 #endif
     // Default callsign if nothing else is set
-    backend->write(x, y, false, "WD]: STATS");
+    backend->write(x, y, false, "[WD]: STATS");
 }
 
 void AP_OSD_Screen::draw_current2(uint8_t x, uint8_t y)
